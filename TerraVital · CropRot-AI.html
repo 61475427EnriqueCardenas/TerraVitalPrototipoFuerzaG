@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TerraVital · CropRot-AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF1E4;--card:#F8FAF1;--ink:#1D3224;--mut:#5C6B5E;--line:#CBD3BE;--ok:#2F7D4F;--warn:#B7791F;--bad:#B03A2E;--acc:#C58B14;--water:#2B6C8F;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17221B;--card:#1F2D24;--ink:#E6EEDC;--mut:#9DB0A0;--line:#34473A;--ok:#6FCB8E;--warn:#E3B04B;--bad:#EE8A7D;--acc:#E3B04B;--water:#7FC0E3}}
+:root[data-theme="dark"]{--bg:#17221B;--card:#1F2D24;--ink:#E6EEDC;--mut:#9DB0A0;--line:#34473A;--ok:#6FCB8E;--warn:#E3B04B;--bad:#EE8A7D;--acc:#E3B04B;--water:#7FC0E3}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Source Sans 3",system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:700;margin:0;line-height:1.15}
+header{padding:28px 20px 8px;max-width:1100px;margin:0 auto}
+h1{font-size:clamp(28px,5vw,44px)}
+header p{color:var(--mut);margin:6px 0 0;max-width:60ch}
+main{max-width:1100px;margin:0 auto;padding:16px 20px 40px;display:grid;gap:16px;grid-template-columns:1fr 1fr}
+@media(max-width:820px){main{grid-template-columns:1fr}}
+section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px}
+.wide{grid-column:1/-1}
+h2{font-size:20px;margin-bottom:12px}
+.vit{display:grid;gap:12px}
+.row{display:grid;grid-template-columns:110px 1fr 120px;align-items:center;gap:10px;font-size:15px}
+.track{position:relative;height:12px;background:var(--line);border-radius:6px}
+.fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px}
+.tick{position:absolute;top:-4px;width:2px;height:20px;background:var(--ink)}
+.state{font-weight:600;text-align:right}
+.small{font-size:13px;color:var(--mut)}
+.ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+select,button{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 10px}
+button{cursor:pointer;font-weight:600}
+button.p{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.seas{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:14px}
+.seas label{display:grid;gap:2px;font-size:13px;color:var(--mut)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px}
+.kpi{border-left:3px solid var(--acc);padding-left:10px}
+.kpi b{display:block;font:700 24px "Bricolage Grotesque",sans-serif}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mut);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+.alert{border-left:4px solid var(--warn);padding:8px 12px;margin:0 0 14px;background:var(--bg)}
+.src{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}
+.src a{display:block;text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:14px}
+.src a:hover{border-color:var(--ink)}
+.src a:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.src b{display:block}.src span{color:var(--mut)}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:1px 8px;border-radius:10px;margin-bottom:3px;border:1px solid currentColor}
+.ya{color:var(--ok)}.sig{color:var(--warn)}.no{color:var(--mut)}
+.src .no{opacity:.75}
+</style></head><body>
+<header><h1>TerraVital</h1><p>Mira la salud de tu parcela como unos signos vitales y prueba qué sembrar en los próximos años. Datos de ejemplo: aún no conectado a satélites ni al backend.</p></header>
+<main>
+<section><h2>Parcela y vigor del cultivo</h2>
+<svg viewBox="0 0 400 270" width="100%" role="img" aria-label="Mapa de ejemplo de una parcela con zonas de vigor NDVI"><defs><clipPath id="poly"><polygon points="40,50 210,20 370,70 350,220 150,250 30,180"/></clipPath></defs><g id="cells" clip-path="url(#poly)"></g><polygon points="40,50 210,20 370,70 350,220 150,250 30,180" fill="none" stroke="var(--ink)" stroke-width="2"/></svg>
+<div class="legend"><span><i style="background:#B03A2E"></i>NDVI bajo</span><span><i style="background:#D9B44A"></i>medio</span><span><i style="background:#2F7D4F"></i>alto</span></div>
+<p class="small">Vista simulada. Después se reemplaza por el polígono GeoJSON del agricultor y el NDVI de Landsat.</p></section>
+<section><h2>Signos vitales del suelo</h2><div class="vit" id="vit"></div>
+<p class="small">La marca vertical es el valor de hoy; la barra es la proyección al final del plan que elijas abajo. El umbral mínimo es un valor de ejemplo.</p></section>
+<section class="wide"><h2>Clima y fuentes de datos</h2><p class="alert">Alerta climática: NASA reporta un El Niño en desarrollo desde el verano de 2026. En los Andes puede alterar el inicio de las lluvias, así que usa el selector de clima del simulador para comparar un año normal, seco y lluvioso.</p><div class="src" id="src"></div><p class="small">Etiquetas: <span class="ya">En el prototipo</span> (datos de ejemplo con esa estructura), <span class="sig">Siguiente</span> (por conectar), <span class="no">No aplica en Perú</span> (cobertura de EE. UU.). Para suelos y precios locales habría que buscar fuentes peruanas (INIA, MIDAGRI, SENAMHI).</p></section>
+<section class="wide"><h2>Simulador “¿Y si siembro…?”</h2>
+<div class="ctl"><label>Horizonte <select id="hor"><option value="1">1 año</option><option value="3" selected>3 años</option><option value="5">5 años</option></select></label>
+<label>Clima <select id="esc"><option value="1">Año normal</option><option value="0.8">Año seco</option><option value="0.9">Año muy lluvioso</option></select></label><button class="p" id="opt">Recomendar con IA</button><button id="rst">Limpiar plan</button><button id="prt">Guardar informe en PDF</button></div>
+<div class="seas" id="seas"></div>
+<div class="kpis"><div class="kpi"><span class="small">Margen acumulado</span><b id="k1">–</b></div><div class="kpi"><span class="small">Fertilizante sintético</span><b id="k2">–</b></div><div class="kpi"><span class="small">Riesgo de plagas</span><b id="k3">–</b></div></div>
+<svg viewBox="0 0 640 200" width="100%" role="img" aria-label="Evolución proyectada de nitrógeno, fósforo y potasio por temporada" id="chart"></svg>
+<div class="legend"><span><i style="background:var(--ok)"></i>Nitrógeno</span><span><i style="background:var(--acc)"></i>Fósforo</span><span><i style="background:var(--water)"></i>Potasio</span></div></section>
+</main>
+<script>
+var C={maiz:{n:[-120,-40,-80],m:900,f:"poaceae"},trigo:{n:[-90,-30,-50],m:650,f:"poaceae"},papa:{n:[-100,-45,-140],m:1400,f:"solanaceae"},habas:{n:[40,-20,-30],m:700,f:"fabaceae"},arveja:{n:[35,-15,-25],m:600,f:"fabaceae"},cobertura:{n:[25,0,0],m:0,f:"mixto"}};
+var FC=[1.2,2,1],MIN=[60,25,60],N0=[120,40,150],MAXV=[250,100,250],NAMES=["Nitrógeno","Fósforo","Potasio"],LBL={maiz:"Maíz",trigo:"Trigo",papa:"Papa",habas:"Habas",arveja:"Arveja",cobertura:"Cultivo de cobertura"};
+var PREV="maiz",S=[],K=1;
+function ev(seq){var n=N0.slice(),m=0,fe=0,pl=0,ant=PREV,tr=[];seq.forEach(function(c){if(!c){tr.push(n.slice());return}var d=C[c];for(var i=0;i<3;i++){n[i]+=d.n[i];if(n[i]<MIN[i]){fe+=(MIN[i]-n[i])*FC[i];n[i]=MIN[i]}}m+=d.m*K;if(ant&&d.f==C[ant].f&&d.f!="mixto")pl+=300;ant=c;tr.push(n.slice())});
+var h=(n[0]/MIN[0]+n[1]/MIN[1]+n[2]/MIN[2])/3;return{m:m,fe:fe,pl:pl,n:n,tr:tr,score:m-fe-pl+150*h}}
+function ga(len){var k=Object.keys(C),pop=[],i,g;for(i=0;i<60;i++){pop.push(Array.from({length:len},function(){return k[Math.floor(Math.random()*k.length)]}))}
+var f=function(s){return ev(s).score};for(g=0;g<60;g++){pop.sort(function(a,b){return f(b)-f(a)});var el=pop.slice(0,12),h=[];while(h.length<48){var a=el[Math.floor(Math.random()*12)],b=el[Math.floor(Math.random()*12)],cut=1+Math.floor(Math.random()*Math.max(1,len-1)),c=a.slice(0,cut).concat(b.slice(cut));if(Math.random()<.2)c[Math.floor(Math.random()*len)]=k[Math.floor(Math.random()*k.length)];h.push(c.slice(0,len))}pop=el.concat(h)}
+pop.sort(function(a,b){return f(b)-f(a)});return pop[0]}
+var cells=document.getElementById("cells"),seed=7;function rnd(){seed=(seed*9301+49297)%233280;return seed/233280}
+for(var x=0;x<14;x++)for(var y=0;y<10;y++){var v=rnd()*.6+(x>7?.25:0),col=v<.3?"#B03A2E":v<.6?"#D9B44A":"#2F7D4F";cells.insertAdjacentHTML("beforeend",'<rect x="'+(x*28)+'" y="'+(y*27)+'" width="28" height="27" fill="'+col+'" opacity=".85"/>')}
+var hor=document.getElementById("hor"),seas=document.getElementById("seas");
+function build(){var n=+hor.value*2;S=Array(n).fill("");seas.innerHTML="";for(var i=0;i<n;i++){var l=document.createElement("label");l.textContent="Temporada "+(i+1);var s=document.createElement("select");s.innerHTML='<option value="">(sin sembrar)</option>'+Object.keys(C).map(function(k){return'<option value="'+k+'">'+LBL[k]+"</option>"}).join("");s.dataset.i=i;s.onchange=function(){S[+this.dataset.i]=this.value;draw()};l.appendChild(s);seas.appendChild(l)}draw()}
+function sync(){var sel=seas.querySelectorAll("select");S.forEach(function(v,i){sel[i].value=v})}
+function stateOf(v,i){return v<MIN[i]*1.05?["Atención","var(--bad)"]:v<MIN[i]*1.8?["Estable","var(--warn)"]:["Saludable","var(--ok)"]}
+function draw(){var r=ev(S),end=r.n,html="";
+html+=row("Humedad",31,60,"31 %","Estable","var(--water)",null);html+=row("Humedad raíz",38,60,"38 %","Estable","var(--water)",null);html+=row("Lluvia 30 d",48,120,"48 mm","Baja","var(--warn)",null);html+=row("Vigor NDVI",.62*100,100,"0,62","Saludable","var(--ok)",null);
+for(var i=0;i<3;i++){var st=stateOf(end[i],i);html+=row(NAMES[i],end[i],MAXV[i],Math.round(end[i])+" kg/ha",st[0],st[1],N0[i])}
+document.getElementById("vit").innerHTML=html;
+document.getElementById("k1").textContent="$ "+Math.round(r.m).toLocaleString("es-PE");document.getElementById("k2").textContent="$ "+Math.round(r.fe).toLocaleString("es-PE");document.getElementById("k3").textContent=r.pl?"Alto ($ "+r.pl+")":"Bajo";
+var cols=["var(--ok)","var(--acc)","var(--water)"],pts=[N0].concat(r.tr),n=pts.length,w=560/Math.max(1,n-1),s="";
+for(var j=0;j<3;j++){s+='<line x1="40" x2="620" y1="'+(180-MIN[j]/MAXV[j]*160)+'" y2="'+(180-MIN[j]/MAXV[j]*160)+'" stroke="'+cols[j]+'" stroke-dasharray="3 5" opacity=".5"/>';
+s+='<polyline fill="none" stroke="'+cols[j]+'" stroke-width="2.5" points="'+pts.map(function(p,k){return(50+k*w)+","+(180-Math.min(1,p[j]/MAXV[j])*160)}).join(" ")+'"/>'}
+pts.forEach(function(p,k){s+='<text x="'+(50+k*w)+'" y="196" font-size="12" text-anchor="middle" fill="var(--mut)">'+(k?(S[k-1]?LBL[S[k-1]].split(" ")[0]:"–"):"Hoy")+"</text>"});
+document.getElementById("chart").innerHTML=s}
+function row(l,v,mx,txt,st,col,tick){return'<div class="row"><span>'+l+'</span><div class="track"><div class="fill" style="width:'+Math.min(100,v/mx*100)+'%;background:'+col+'"></div>'+(tick!=null?'<div class="tick" style="left:'+(tick/mx*100)+'%"></div>':"")+'</div><span class="state" style="color:'+col+'">'+txt+" · "+st+"</span></div>"}
+hor.onchange=build;
+document.getElementById("esc").onchange=function(){K=+this.value;draw()};
+var SRC=[["NASA SMAP L4","Humedad de superficie y raíz, 9 km, unos 7 días de retraso","ya"],["GPM IMERG","Lluvia cada 30 min a unos 10 km. Early/Late para lo reciente; Final para histórico","ya"],["NASA POWER","Temperatura, radiación y viento con API gratuita","ya"],["Landsat y HLS (LP DAAC, EarthExplorer)","NDVI, NDWI y EVI de la parcela","sig"],["VIIRS","NDVI diario de baja resolución. Usar NOAA-20/21: Suomi NPP ya no entrega datos","sig"],["SRTM","Elevación y pendiente del terreno","sig"],["ERA5 (Copernicus)","Clima histórico por hora para escenarios","sig"],["Copernicus Data Space","Sentinel-2 (10 m) y Sentinel-1 radar como alternativa","sig"],["FAO GAEZ","Aptitud agroecológica para filtrar qué sembrar","sig"],["ECOSTRESS","Temperatura del suelo y estrés hídrico; pasadas no diarias","sig"],["GEDI","Altura de vegetación; cobertura parcial, opcional","sig"],["OpenET","Evapotranspiración; cubre el oeste de EE. UU.","no"],["NRCS Web Soil Survey y Soils","Suelos de EE. UU.","no"],["CropScape y NASS QuickStats","Cultivos y estadísticas de EE. UU.","no"],["PRISM, NAIP, NLCD, LANDFIRE","Clima, imágenes y cobertura de EE. UU.","no"],["CoCoRaHS, USGS NWIS, USDA Market News","Lluvia, ríos y precios de EE. UU.","no"],["USDA AgData Commons","Datasets agrícolas, sobre todo de EE. UU.","no"]],CH={ya:"En el prototipo",sig:"Siguiente",no:"No aplica en Perú"};
+document.getElementById("src").innerHTML=SRC.map(function(s,i){var U=["https://www.earthdata.nasa.gov/data/platforms/space-based-platforms/smap","https://gpm.nasa.gov/data","https://power.larc.nasa.gov/","https://earthexplorer.usgs.gov/","https://search.earthdata.nasa.gov/search?q=VIIRS","https://www.earthdata.nasa.gov/data/instruments/srtm","https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels?tab=overview","https://dataspace.copernicus.eu/","https://gaez.fao.org/","https://ecostress.jpl.nasa.gov/data","https://gedi.umd.edu/data","https://openetdata.org/","https://websoilsurvey.nrcs.usda.gov/app/","https://nassgeodata.gmu.edu/CropScape/","https://prism.oregonstate.edu/","https://www.cocorahs.org/Maps","https://www.nal.usda.gov/services/agdatacommons"];return'<a class="'+s[2]+'" href="'+U[i]+'" target="_blank" rel="noopener noreferrer"><span class="chip '+s[2]+'">'+CH[s[2]]+'</span><b style="color:var(--ink)">'+s[0]+'</b><span>'+s[1]+'</span></a>'}).join("");
+document.getElementById("opt").onclick=function(){S=ga(S.length);sync();draw()};
+document.getElementById("rst").onclick=function(){S=Array(S.length).fill("");sync();draw()};
+document.getElementById("prt").onclick=function(){try{window.print()}catch(e){}};
+build();
+</script></body></html>
